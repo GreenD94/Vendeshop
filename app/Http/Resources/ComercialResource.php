@@ -17,6 +17,7 @@ class ComercialResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'tittle' => $this->tittle,
             'image' => $this->when($this->image, function () {
                 return new ImageResource($this->image);
             }, []),
