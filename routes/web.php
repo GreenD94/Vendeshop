@@ -1,8 +1,10 @@
 <?php
 
+use App\Imports\ShippingCostImport;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,9 +23,9 @@ Route::get('/', function () {
 });
 
 Route::get('/testmail', function () {
-    $data = ["orden" => Order::has('details', '>=', 3)->first()];
+    Excel::import(new ShippingCostImport, 'tarifas_vendeshop.xlsx');
 
-    return new \App\Mail\OrderCreated($data);
+    return redirect('/')->with('success', 'All good!');
 });
 
 Route::get('/web/terms-and-conditions', function () {
@@ -163,7 +165,7 @@ Route::get('payuu', function (Request $request) {
             // ];
             dd($response);
         }
-    } catch (\Throwable$th) {
+    } catch (\Throwable $th) {
         return array("trace" => $th->getTrace(), "message" => $th->getMessage());
         dd($th->getTrace(), $th->getMessage());
     }
