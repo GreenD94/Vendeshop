@@ -39,7 +39,8 @@ class PushNotificationStoreRequest extends FormRequest
             'body' =>  ['required'],
 
         ];
-
+        if (is_array($this->user_id)) $rules['user_id'] = ['required'];
+        if (is_array($this->user_id)) $rules['user_id.*'] = ['exists:users,id', 'numeric', 'gte:1', 'integer'];
         if ($this->user_id == "*") $rules['user_id'] = ['required'];
         return $rules;
     }
