@@ -26,23 +26,31 @@ class ReportController extends Controller
         $data = $request->only('days', 'months', 'years');
         $endDate = Carbon::now();
         $startDate = Carbon::now();
-       
+        if ($request->has('start_year')) $startDate->year = $request->start_year;
+        if ($request->has('start_month')) $startDate->month = $request->start_month;
+        if ($request->has('start_day')) $startDate->day = $request->start_day;
+
+        if ($request->has('end_year')) $endDate->year = $request->end_year;
+        if ($request->has('end_month')) $endDate->month = $request->end_month;
+        if ($request->has('end_day')) $endDate->day = $request->end_day;
+
         if (!$data)   $startDate->subDays(7);
         if ($request->has('days'))  $startDate->subDays($request->days);
         if ($request->has('months'))  $startDate->subDays($request->months);
         if ($request->has('years'))  $startDate->subDays($request->years);
-     
+
 
         $orderQuery = Order::whereDate('created_at', '>=', $startDate->format('Y-m-d'))
             ->whereDate('created_at', '<=', $endDate->format('Y-m-d'));
- 
+
+
         $paymentTypes = PaymentType::all();
         $paymentTypes->push(PaymentType::factory()->make(['name' => 'todos']));
         $result = array();
         $paymentTypes->each(function ($paymentType, $key) use ($orderQuery, &$result) {
 
             $query = (clone $orderQuery)->whenPaymentTypeId($paymentType?->id);
-     
+
             $result[$paymentType->name] =  $query->reportByStatus();
         });
 
