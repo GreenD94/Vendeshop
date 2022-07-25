@@ -9,7 +9,7 @@ class Comercial extends Model
 {
     use HasFactory;
     protected $with = ['image'];
-    protected $fillable = ['name',  'image_id'];
+    protected $fillable = ['name',  'image_id', 'tittle'];
     static $WELCOME_NEW = 1;
     static $WELCOME_OLD = 2;
     public function image()

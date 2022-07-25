@@ -66,7 +66,8 @@ class ComercialController extends Controller
         $imageModel = Image::create($modelData);
 
 
-        $modelData = array_merge($request->only('name',), ["image_id" => $imageModel->id]);
+        $modelData = array_merge($request->only('name', 'tittle'), ["image_id" => $imageModel->id]);
+
         $createdModel = Comercial::create($modelData);
         $createdModel->load('image');
 
@@ -105,7 +106,7 @@ class ComercialController extends Controller
      */
     public function update(ComercialUpdateRequest $request)
     {
-        $modelData = $request->only('name',  'image_id');
+        $modelData = $request->only('name',  'image_id', 'tittle');
         if ($request->has('image')) {
             try {
                 $createdModel = Comercial::find($request->id);
