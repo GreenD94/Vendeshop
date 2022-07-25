@@ -8,6 +8,7 @@ use App\Http\Resources\PushNotificationEventResource;
 use App\Http\Resources\PushNotificationResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class PushNotification extends Model
 {
@@ -36,7 +37,7 @@ class PushNotification extends Model
         if ($user_id) $query->where("user_id", $user_id);
     }
 
-    static public function sendPushNotification($to, $tittle, $body, $is_admin_key = true, $tittle2 = null)
+    static public function sendPushNotification($to, $tittle, $body, $is_admin_key = true, $tittle2 = null, $imageUrl = null)
     {
 
         $adminKey = 'AAAAfZ5vJB0:APA91bGK55jAKvgBnUegqDRR_jWapgAlTyhfrBHM8arLE75O8bNxF5-Sv_cOdUvNoSUcRB2e6V1WUWqmp5hrhMeCO-bh4li5attOPkgv4CaK0EL86aZTSUBE7Z5qE5Y-LkzJsdt6f_Yr';
@@ -63,6 +64,7 @@ class PushNotification extends Model
             ],
         ];
 
+        if ($imageUrl) $data["notification"]["imageUrl"] = $imageUrl;
         $encodedData = json_encode($data);
 
         $headers = [
@@ -108,8 +110,27 @@ class PushNotification extends Model
         $modelData['body']['event'] = (new PushNotificationEventResource($push_notification_event));
 
         if ($modelData['is_live']) {
-            $result = PushNotification::sendPushNotification($modelData['user_id'], $comercial->tittle ?? "NOTICIAS",  $modelData['body'], true, $comercial->name);
-            $result = PushNotification::sendPushNotification($modelData['user_id'], $comercial->tittle ?? "NOTICIAS",  $modelData['body'], false, $comercial->name);
+            $result = PushNotification::sendPushNotification(
+                $modelData['user_id'],
+                $comercial->tittle ?? "NOTICIAS",
+                $modelData['body'],
+                true,
+                $comercial->name,
+                Storage::disk('s3')->url(
+                    $comercial?->image?->url
+                ),
+
+            );
+            $result = PushNotification::sendPushNotification(
+                $modelData['user_id'],
+                $comercial->tittle ?? "NOTICIAS",
+                $modelData['body'],
+                false,
+                $comercial->name,
+                Storage::disk('s3')->url(
+                    $comercial?->image?->url
+                ),
+            );
             if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
         }
 
