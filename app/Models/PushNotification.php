@@ -107,26 +107,24 @@ class PushNotification extends Model
         $modelData['body']['comercial'] = (new ComercialResource($comercial));
         $modelData['body']['event'] = (new PushNotificationEventResource($push_notification_event));
 
-        if ($modelData['is_live']) {
-            $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], true, $comercial->name);
-            $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], false, $comercial->name);
-            if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
-        }
+        // if ($modelData['is_live']) {
+        //     $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], true, $comercial->name);
+        //     $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], false, $comercial->name);
+        //     if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
+        // }
 
         $modelData['body'] = json_encode($modelData['body']);
-        if ($modelData['user_id'] == "*") {
-            $usersId = User::whereNotNull('device_key')->pluck('id')->all();
-            $data = [];
-            foreach ($usersId as $key => $id) {
-                $modelData['user_id'] = $id;
-                array_push($data, $modelData);
-            }
-            foreach ($data as $key => $d) {
-                PushNotification::create($d);
-            }
-            return  ['data' => [], "message" => "success", "code" => 200];
+        $usersId = collect([]);
+        if ($modelData['user_id'] == "*") $usersId = User::whereNotNull('device_key')->pluck('id')->all();
+        if (is_array($modelData['user_id'])) $usersId = User::whereIn('id', $modelData['user_id'])->whereNotNull('device_key')->pluck('id')->all();
+        $data = [];
+        foreach ($usersId as $key => $id) {
+            $modelData['user_id'] = $id;
+            array_push($data, $modelData);
         }
-        $createdModel = PushNotification::create($modelData);
-        return  ['data' => new PushNotificationResource($createdModel), "message" => "success", "code" => 200];
+        foreach ($data as $key => $d) {
+            PushNotification::create($d);
+        }
+        return  ['data' => [], "message" => "success", "code" => 200];
     }
 }
