@@ -107,11 +107,11 @@ class PushNotification extends Model
         $modelData['body']['comercial'] = (new ComercialResource($comercial));
         $modelData['body']['event'] = (new PushNotificationEventResource($push_notification_event));
 
-        // if ($modelData['is_live']) {
-        //     $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], true, $comercial->name);
-        //     $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], false, $comercial->name);
-        //     if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
-        // }
+        if ($modelData['is_live']) {
+            $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], true, $comercial->name);
+            $result = PushNotification::sendPushNotification($modelData['user_id'], "NOTICIAS",  $modelData['body'], false, $comercial->name);
+            if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
+        }
 
         $modelData['body'] = json_encode($modelData['body']);
         $usersId = collect([]);
