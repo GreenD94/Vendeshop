@@ -65,8 +65,19 @@ class PushNotification extends Model
             "notification" => [
                 "title" => $tittle,
                 "body" =>  $tittle2 ?? "Vende Shop",
+                // "sound" => "alert.aiff"
             ],
-            'badge' => $badge
+            // "priority" => "high",
+            // "apns" => [
+            //     "payload" => [
+            //         "aps" => [
+            //             'badge' => $badge
+            //         ],
+            //         "messageID" => "ABCDEFGHIJ"
+            //     ]
+            // ],
+
+
         ];
 
         if ($imageUrl) $data["notification"]["imageUrl"] = $imageUrl;
