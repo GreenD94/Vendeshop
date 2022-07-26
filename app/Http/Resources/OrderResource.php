@@ -76,6 +76,7 @@ class OrderResource extends JsonResource
                 'name' => $this->payment_type_name,
             ],
             'total' => $this->total,
+            'numero_guia' => $this->numero_guia,
             'payed' => 0,
             'created_at' => $this->created_at,
             'shipping_cost' => floatval(number_format((float)$this->shipping_cost, 2, '.', '')),
