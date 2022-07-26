@@ -44,14 +44,17 @@ class PushNotification extends Model
         $userKey = 'AAAA2TeBH7g:APA91bGVTNgobOu4zRO7z4k5svEtC0J3e2E7ck6UzbeF7v65VZIK668BSlJReUJtQlVd_esqI4uOpcbDha1SVqGk-8qMfRK2khuHjUjeCqiJRZnegL0zMbW714eqGZ5UFsSyXsmNkzqJ';
         $url = 'https://fcm.googleapis.com/fcm/send';
         $FcmToken = null;
+        $isForASingleUser = false;
+        $badge = 1;
         if ($to == "*") {
             $FcmToken = User::whereNotNull('device_key')->pluck('device_key')->all();
         } else {
             $FcmToken = User::whereIn('id', $to)->whereNotNull('device_key')->pluck('device_key')->all();
+            $isForASingleUser = count($to) == 1;
         }
         if (empty($FcmToken)) return ["data" => [], "message" => null, "code" => 200];;
         if (empty($FcmToken)) return ["data" => $to, "message" => "validation error: the users with these ids do not have a device key or they do not exits in database", "code" => 422];
-
+        if ($isForASingleUser) $badge = User::find($to[0])->UnreadNotifications()->count() + 1;
 
         $serverKey = $is_admin_key ? $adminKey : $userKey;
 
@@ -62,6 +65,7 @@ class PushNotification extends Model
                 "title" => $tittle,
                 "body" =>  $tittle2 ?? "Vende Shop",
             ],
+            'badge' => $badge
         ];
 
         if ($imageUrl) $data["notification"]["imageUrl"] = $imageUrl;
