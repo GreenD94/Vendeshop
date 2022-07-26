@@ -23,7 +23,7 @@ class PushNotification extends Model
         'is_new',
         'push_notification_event_id',
     ];
-
+    protected $table = 'push_notifications';
 
     public function event()
     {
@@ -52,6 +52,7 @@ class PushNotification extends Model
             $FcmToken = User::whereIn('id', $to)->whereNotNull('device_key')->pluck('device_key')->all();
             $isForASingleUser = count($to) == 1;
         }
+
         if (empty($FcmToken)) return ["data" => [], "message" => null, "code" => 200];;
         if (empty($FcmToken)) return ["data" => $to, "message" => "validation error: the users with these ids do not have a device key or they do not exits in database", "code" => 422];
         if ($isForASingleUser) $badge = User::find($to[0])->UnreadNotifications()->count() + 1;
