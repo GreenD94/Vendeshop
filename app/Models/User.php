@@ -173,6 +173,17 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class, 'user_id', 'id');
     }
 
+    public function notification()
+    {
+
+        return $this->hasMany(PushNotification::class, 'user_id', 'id');
+    }
+
+    public function scopeUnreadNotifications($query)
+    {
+
+        return $query->notification()->where('is_new', true);
+    }
 
     public function addresses()
     {
