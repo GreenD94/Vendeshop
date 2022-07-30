@@ -28,7 +28,9 @@ class OrderController extends Controller
     public function index(OrderIndexRequest $request)
     {
 
-        $modelQuery = Order::orderBy('id', 'desc')->whenUserId($request->user_id)->whenPaymentTypeId($request->payment_type_id);
+        $modelQuery = Order::orderBy('id', 'desc')
+            ->whenUserId($request->user_id)
+            ->whenPaymentTypeId($request->payment_type_id)->whenId($request->id);
         if (!$request->page) return $this->successResponse(OrderResource::collection($modelQuery->get()));
 
         $models = $modelQuery->paginate($request->limit ?? 5);

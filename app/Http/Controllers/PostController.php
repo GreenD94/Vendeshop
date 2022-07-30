@@ -26,6 +26,7 @@ class PostController extends Controller
             ->whenVV($request->boolean('vv'))
             ->whenUserId($request->user_id)
             ->orderBy('id', 'desc')
+            ->WhenId()
             ->paginate($request->limit ?? 5);
         $data = [
             'total' => (int)$models->total(),

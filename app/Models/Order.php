@@ -205,6 +205,11 @@ class Order extends Model
         if ($payment_type_id) $query->where('payment_type_id', $payment_type_id);
     }
 
+    public function scopeWhenId($query, $id)
+    {
+        if ($id)
+            $query->where('id', $id);
+    }
 
     public function addDetails(Collection $stocks, SupportCollection  $stockData)
     {
@@ -321,8 +326,8 @@ class Order extends Model
         $finalData = [];
         if ($is_alive) {
             $tittle2 = 'ORDEN N°: ' . $this->id;
-            $result = PushNotification::sendPushNotification($usersId, "Nueva Orden",  $modelData['body'], true, $tittle2);
-            $result = PushNotification::sendPushNotification($usersId, "Nueva Orden",  $modelData['body'], false, $tittle2);
+            $result = PushNotification::sendPushNotification($usersId, "Nueva Orden",  $modelData['body'], PushNotification::$ADMIN_PROJECT_ID, PushNotification::getGoogleAccessAdminToken(), $tittle2);
+            $result = PushNotification::sendPushNotification($usersId, "Nueva Orden",  $modelData['body'], PushNotification::$USER_PROJECT_ID, PushNotification::getGoogleAccessUserToken(), $tittle2);
             if ($result["code"] != 200)  $finalData[] = $result["data"];
         }
         $modelData['body'] = json_encode($modelData['body']);
@@ -364,8 +369,8 @@ class Order extends Model
 
 
         if ($is_alive) {
-            $result = PushNotification::sendPushNotification($usersId, "cambio a estado de " . $last_status_logs->name,  $modelData['body']);
-            $result = PushNotification::sendPushNotification($usersId, "cambio a estado de " . $last_status_logs->name,  $modelData['body'], false);
+            $result = PushNotification::sendPushNotification($usersId, "cambio a estado de " . $last_status_logs->name,  $modelData['body'], PushNotification::$ADMIN_PROJECT_ID, PushNotification::getGoogleAccessAdminToken());
+            $result = PushNotification::sendPushNotification($usersId, "cambio a estado de " . $last_status_logs->name,  $modelData['body'], PushNotification::$USER_PROJECT_ID, PushNotification::getGoogleAccessUserToken());
             if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
         }
         $modelData['body'] = json_encode($modelData['body']);

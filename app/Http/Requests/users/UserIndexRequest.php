@@ -31,6 +31,7 @@ class UserIndexRequest extends FormRequest
     public function rules()
     {
         return [
+            'id' =>  ['exists:users,id', 'numeric', 'gte:1'],
             'page' => ['numeric', 'gte:1', 'integer'],
             'limit' => ['integer', 'numeric', 'gte:1'],
             'is_solicitud' => ['boolean'],

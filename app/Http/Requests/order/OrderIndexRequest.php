@@ -28,6 +28,7 @@ class OrderIndexRequest extends FormRequest
     public function rules()
     {
         return [
+            'id' =>  ['exists:orders,id', 'numeric', 'gte:1', 'integer'],
             'page' =>  ['integer', 'numeric', 'gte:1'],
             'limit' =>  ['integer', 'numeric', 'gte:1'],
             'user_id' =>  ['exists:users,id', 'numeric', 'gte:1'],

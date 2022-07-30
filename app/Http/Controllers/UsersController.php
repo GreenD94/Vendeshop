@@ -31,6 +31,7 @@ class UsersController extends Controller
 
         $stocks = User::whenRole($request->role)
             ->whenVV($request->boolean('vv'))
+            ->whenId($request->id)
             ->paginate($request->limit ?? 5);
 
 

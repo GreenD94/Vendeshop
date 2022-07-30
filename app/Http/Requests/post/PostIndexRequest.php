@@ -28,7 +28,7 @@ class PostIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            //'id' =>  ['exists:posts,id', 'numeric', 'gte:1', 'integer'],
+            'id' =>  ['exists:posts,id', 'numeric', 'gte:1', 'integer'],
             // 'is_main' =>  ['boolean'],
             // 'stock_id' =>  ['exists:stocks,id', 'numeric', 'gte:1', 'integer'],
             // 'with_replies' =>  ['boolean'],

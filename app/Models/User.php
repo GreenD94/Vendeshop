@@ -20,6 +20,11 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
     use HasRoles;
 
+    static public $ADMIN_ROLE = "admin";
+    static public $CUSTOMER_ROLE = "customer";
+    static public $MASTER_ROLE = "master";
+
+
     protected $with = ['avatar', 'roles', 'tickets', 'addresses'];
     /**
      * The attributes that are mass assignable.
@@ -197,6 +202,13 @@ class User extends Authenticatable
         }
     }
 
+
+    public function scopeWhenId($query, $id)
+    {
+        if ($id)
+            $query->where('id', $id);
+    }
+
     public function scopeWhenVV($query, $vv)
     {
         if ($vv) {
@@ -227,5 +239,25 @@ class User extends Authenticatable
         if (!$isFirstTimeBuyer) return false;
         if ($ticket != 5000) return false;
         return $total < 8000;
+    }
+
+
+    static public function getFCMUsers($user_id)
+    {
+        if ($user_id == "*") return User::whereNotNull('device_key');
+        return User::whereIn('id', $user_id)->whereNotNull('device_key');
+    }
+
+    public function isAdmin()
+    {
+        return $this->hasRole([User::$ADMIN_ROLE]);
+    }
+    public function isCustomer()
+    {
+        return $this->hasRole([User::$CUSTOMER_ROLE]);
+    }
+    public function isMaster()
+    {
+        return $this->hasRole([User::$MASTER_ROLE]);
     }
 }

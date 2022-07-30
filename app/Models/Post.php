@@ -90,8 +90,8 @@ class Post extends Model
             $from = '';
             if ($this?->user?->first_name)  $from = $this?->user?->first_name . ': ';
             $tittle2 = $from . $this->body;
-            $result = PushNotification::sendPushNotification($usersId, "Nuevo Mensaje",  $modelData['body'], true, $tittle2);
-            $result = PushNotification::sendPushNotification($usersId, "Nuevo Mensaje",  $modelData['body'], false, $tittle2);
+            $result = PushNotification::sendPushNotification($usersId, "Nuevo Mensaje",  $modelData['body'], PushNotification::$ADMIN_PROJECT_ID, PushNotification::getGoogleAccessAdminToken(), $tittle2);
+            $result = PushNotification::sendPushNotification($usersId, "Nuevo Mensaje",  $modelData['body'], PushNotification::$USER_PROJECT_ID, PushNotification::getGoogleAccessUserToken(), $tittle2);
             if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
         }
         $modelData['body'] = json_encode($modelData['body']);
