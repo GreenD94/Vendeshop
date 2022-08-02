@@ -30,9 +30,6 @@ class StocksController extends Controller
     public function index(StockIndexRequest $request)
     {
 
-
-
-
         $relationship = [
             'cover_image',
             'images',
@@ -50,6 +47,7 @@ class StocksController extends Controller
 
             $stocks = Stock::with($relationship)
                 ->whenOrderBy($request->order_by)
+                ->whenId($request->id)
                 ->whenCategoryId($request->category_id)
                 ->whenSearch($request->search)
                 ->whenIsFavorite($request->is_favorite, $request->is_favorite_id)
@@ -71,6 +69,7 @@ class StocksController extends Controller
                 ->whenOrderBy($request->order_by)
                 ->whenCategoryId($request->category_id)
                 ->whenSearch($request->search)
+                ->whenId($request->id)
                 ->whenIsFavorite($request->is_favorite, $request->is_favorite_id)
                 ->whenLimit($request->limit);
             $data = StockResource::collection($stocks->get());

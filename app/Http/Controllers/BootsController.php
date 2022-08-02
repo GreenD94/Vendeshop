@@ -11,6 +11,7 @@ use App\Http\Resources\AdResource;
 use App\Http\Resources\BackgroundResource;
 use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\IconCategoryResource;
 use App\Http\Resources\IconResource;
 use App\Http\Resources\StockResource;
 use App\Http\Resources\UserResource;
@@ -20,6 +21,7 @@ use App\Models\Background;
 use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Icon;
+use App\Models\IconCategory;
 use App\Models\Stock;
 use App\Models\User;
 use App\Models\Video;
@@ -94,7 +96,7 @@ class BootsController extends Controller
             'product.sizes',
             'product.colors',
             'ribbon'
-        ])->whenOrderBy($request->top_stock_order_by ?? "desc")->whenCategoryId(Category::$LO_MAS_TOP)->paginate($request->Latest_limit ?? 5);
+        ])->whenOrderBy($request->top_stock_order_by ?? "last_updated")->whenCategoryId(Category::$LO_MAS_TOP)->paginate($request->Latest_limit ?? 5);
 
         $top_stocks =  [
             'total' => (int) $top_stocks->total(),
@@ -117,7 +119,7 @@ class BootsController extends Controller
             'product.sizes',
             'product.colors',
             'ribbon'
-        ])->whenOrderBy($request->promotions_stock_order_by ?? "desc")->whenCategoryId(Category::$OFERTAS)->paginate($request->Latest_limit ?? 5);
+        ])->whenOrderBy($request->promotions_stock_order_by ?? "last_updated")->whenCategoryId(Category::$OFERTAS)->paginate($request->Latest_limit ?? 5);
 
         $stocks_promotions =  [
             'total' => (int) $stocks_promotions->total(),
@@ -188,6 +190,21 @@ class BootsController extends Controller
 
 
 
+
+
+        $iconCategory =  IconCategory::orderBy('id', 'desc')->get();
+        // $iconCategory = [
+        //     'total' => (int) $iconCategory->total(),
+        //     'per_page' => (int)$iconCategory->perPage(),
+        //     'current_page' => (int)$iconCategory->currentPage(),
+        //     'last_page' => (int) $iconCategory->lastPage(),
+        //     'next_page_url' => $iconCategory->nextPageUrl(),
+        //     'prev_page_url' => $iconCategory->previousPageUrl(),
+        //     'prev_page_url' => $iconCategory->previousPageUrl(),
+        //     'icon_category' =>  IconCategoryResource::collection($iconCategory->items()),
+        // ];
+
+        $authUser = User::find(Auth()->id() ?? 1);
         $data = [
             "latest_stocks" => $latest_stocks,
             "stocks" => $stocks,
@@ -195,11 +212,13 @@ class BootsController extends Controller
             "stocks_promotions" => $stocks_promotions,
             "banners" => $banners,
             "icons" => $icons,
+            'icon_category' =>  IconCategoryResource::collection($iconCategory),
             "ads" => $ads,
             "videos" => $videos,
             "backgrounds" => $backgrounds,
             "categories" => CategoryResource::collection(Category::orderBy('id', 'desc')->get()),
-            "auth" => auth()->check() ? new UserResource(User::find(Auth()->id() ?? 1)) : null
+            "auth" => auth()->check() ? new UserResource(User::find(Auth()->id() ?? 1)) : null,
+            "badge" => $authUser->unreadNotifications()->count()
         ];
 
         return $this->successResponse($data);

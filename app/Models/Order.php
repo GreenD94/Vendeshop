@@ -309,80 +309,152 @@ class Order extends Model
     {
 
         $push_notification_event =  PushNotificationEvent::find(PushNotificationEvent::$NEW_ORDER);
-        $usersId = User::role('admin')->pluck('id')->all();
-        $maserId = User::role('master')->pluck('id')->all();
-        $usersId = array_merge($usersId, $maserId);
+        $fcmUsers = User::role('admin')->whereNotNull('device_key')->get();
+        $maserId = User::role('master')->whereNotNull('device_key')->get();
+        $fcmUsers->concat($maserId);
+
+        $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
+        $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
+
         $modelData = [
-            "user_id" =>  $usersId,
-            "tittle" => "new order has been created",
+            "user_id" =>  $fcmUsers[0]->id,
+            "tittle" => "Nueva Orden",
             "body" =>  [
-                "order" => new OrderResource($this),
-                "event" => new PushNotificationEventResource($push_notification_event)
+                "order" => (new OrderResource($this))->toResponse(app('request'))->getContent(),
+                "event" => (new PushNotificationEventResource($push_notification_event))->toResponse(app('request'))->getContent()
             ],
             "is_live" => $is_alive,
             "push_notification_event_id" => $push_notification_event->id,
         ];
 
-        $finalData = [];
+
+        $tittle2 = 'ORDEN N°: ' . $this->id;
+        $errorResult = collect([]);
         if ($is_alive) {
-            $tittle2 = 'ORDEN N°: ' . $this->id;
-            $result = PushNotification::sendPushNotification($usersId, "Nueva Orden",  $modelData['body'], PushNotification::$ADMIN_PROJECT_ID, PushNotification::getGoogleAccessAdminToken(), $tittle2);
-            $result = PushNotification::sendPushNotification($usersId, "Nueva Orden",  $modelData['body'], PushNotification::$USER_PROJECT_ID, PushNotification::getGoogleAccessUserToken(), $tittle2);
-            if ($result["code"] != 200)  $finalData[] = $result["data"];
+            foreach ($fcmUsers as $key => $user) {
+                $modelData["user_id"] = $user->id;
+                $isAdminProject = $user->isAdmin() || $user->isMaster();
+                $unreadNotification = $user->unreadNotifications()->count() + 1;
+                $result = PushNotification::sendPushNotification(
+                    $user->device_key,
+                    "Nueva Orden",
+                    $modelData['body'],
+                    PushNotification::$USER_PROJECT_ID,
+                    $googleAccessUserToken,
+                    $tittle2,
+                    null,
+                    $unreadNotification
+                );
+
+                $errorResult->push($result);
+
+
+                if ($isAdminProject) $result =  PushNotification::sendPushNotification(
+                    $user->device_key,
+                    "Nueva Orden",
+                    $modelData['body'],
+                    PushNotification::$ADMIN_PROJECT_ID,
+                    $googleAccessAdminToken,
+                    $tittle2,
+                    null,
+                    $unreadNotification
+
+                );
+                if ($isAdminProject) $errorResult->push($result);
+            }
         }
+
+        $finalData = [];
+        $modelData['body']['comercial'] =  new OrderResource($this);
+        $modelData['body']['event'] = new PushNotificationEventResource($push_notification_event);
         $modelData['body'] = json_encode($modelData['body']);
         $data = [];
-        foreach ($usersId as $key => $id) {
-            $modelData['user_id'] = $id;
+        foreach ($fcmUsers as $key => $user) {
+            $modelData['user_id'] = $user->id;
             array_push($data, $modelData);
         }
         foreach ($data as $key => $d) {
             PushNotification::create($d);
         }
-        return  ['data' => $finalData, "message" => "success", "code" => 200];
+        return  ['data' => $errorResult, "message" => "success", "code" => 200];
     }
 
     public function sendStatusChangedNotification($is_alive = true)
     {
 
         $push_notification_event =   PushNotificationEvent::find(PushNotificationEvent::$ORDER_STATE_CHANGE);
-        $usersId = User::role('admin')->pluck('id')->all();
-        $maserId = User::role('master')->pluck('id')->all();
-        $usersId = array_merge($usersId, $maserId);
+        $fcmUsers = User::role('admin')->whereNotNull('device_key')->get();
+        $maserId = User::role('master')->whereNotNull('device_key')->get();
+        $fcmUsers->concat($maserId);
+        $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
+        $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
 
-        $usersId[] = (int) $this->user_id;
+        $fcmUsers[] = User::where('id', $this->user_id)->whereNotNull('device_key')->first();
         $last_status_logs_index = $this->status_logs->count() - 1;
         $second_last_status_logs_index = $last_status_logs_index - 1;
         $last_status_logs = $this->status_logs[$last_status_logs_index];
         $second_last_status_logs = $this->status_logs[$second_last_status_logs_index];
 
         $modelData = [
-            "user_id" =>  $usersId,
+            "user_id" =>  $fcmUsers[0]->id,
             "tittle" => "order (" . $this->id . ") has changed status from (" . $second_last_status_logs->name . ") to (" . $last_status_logs->name . ")",
             "body" =>  [
-                "order" => new OrderResource($this),
-                "event" => new PushNotificationEventResource($push_notification_event)
+                "order" => (new OrderResource($this))->toResponse(app('request'))->getContent(),
+                "event" => (new PushNotificationEventResource($push_notification_event))->toResponse(app('request'))->getContent()
             ],
             "is_live" => $is_alive,
             "push_notification_event_id" => $push_notification_event->id,
         ];
 
-
+        $errorResult = collect([]);
         if ($is_alive) {
-            $result = PushNotification::sendPushNotification($usersId, "cambio a estado de " . $last_status_logs->name,  $modelData['body'], PushNotification::$ADMIN_PROJECT_ID, PushNotification::getGoogleAccessAdminToken());
-            $result = PushNotification::sendPushNotification($usersId, "cambio a estado de " . $last_status_logs->name,  $modelData['body'], PushNotification::$USER_PROJECT_ID, PushNotification::getGoogleAccessUserToken());
-            if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
+
+
+            foreach ($fcmUsers as $key => $user) {
+                $modelData["user_id"] = $user->id;
+                $isAdminProject = $user->isAdmin() || $user->isMaster();
+                $unreadNotification = $user->unreadNotifications()->count() + 1;
+                $result = PushNotification::sendPushNotification(
+                    $user->device_key,
+                    "cambio a estado de " . $last_status_logs->name,
+                    $modelData['body'],
+                    PushNotification::$USER_PROJECT_ID,
+                    $googleAccessUserToken,
+                    null,
+                    null,
+                    $unreadNotification
+                );
+
+                $errorResult->push($result);
+
+
+                if ($isAdminProject) $result =  PushNotification::sendPushNotification(
+                    $user->device_key,
+                    "cambio a estado de " . $last_status_logs->name,
+                    $modelData['body'],
+                    PushNotification::$ADMIN_PROJECT_ID,
+                    $googleAccessAdminToken,
+                    null,
+                    null,
+                    $unreadNotification
+
+                );
+                if ($isAdminProject) $errorResult->push($result);
+            }
         }
+
+        $modelData['body']['order'] =  new OrderResource($this);
+        $modelData['body']['event'] = new PushNotificationEventResource($push_notification_event);
         $modelData['body'] = json_encode($modelData['body']);
         $data = [];
-        foreach ($usersId as $key => $id) {
-            $modelData['user_id'] = $id;
+        foreach ($fcmUsers as $key => $user) {
+            $modelData['user_id'] = $user->id;
             array_push($data, $modelData);
         }
         foreach ($data as $key => $d) {
             PushNotification::create($d);
         }
-        return  ['data' => [], "message" => "success", "code" => 200];
+        return  ['data' => $errorResult, "message" => "success", "code" => 200];
     }
 
     public function sendOrderCreatedMail($data)

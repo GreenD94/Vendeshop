@@ -20,6 +20,7 @@ use App\Http\Controllers\ComercialController;
 use App\Http\Controllers\company\CompaniesController;
 use App\Http\Controllers\currency\CurrenciesController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\IconCategoryController;
 use App\Http\Controllers\IconController;
 use App\Http\Controllers\image\OfficeImageController;
 use App\Http\Controllers\image\ProductImageController;
@@ -187,6 +188,12 @@ Route::group(['middleware' => 'EnsureTokenIsAuth'], function () {
     Route::put('mobile/icons', [IconController::class, 'update'])->name('api.mobile.icons.update');
     Route::delete('mobile/icons', [IconController::class, 'destroy'])->name('api.mobile.icons.destroy');
 
+
+    Route::post('mobile/icon-category', [IconCategoryController::class, 'store'])->name('api.mobile.icon_category.store');
+    Route::put('mobile/icon-category', [IconCategoryController::class, 'update'])->name('api.mobile.icon_category.update');
+    Route::delete('mobile/icon-category', [IconCategoryController::class, 'destroy'])->name('api.mobile.icon_category.destroy');
+
+
     Route::post('mobile/ads', [AdController::class, 'store'])->name('api.mobile.ads.store');
     Route::put('mobile/ads', [AdController::class, 'update'])->name('api.mobile.ads.update');
     Route::delete('mobile/ads', [AdController::class, 'destroy'])->name('api.mobile.ads.destroy');
@@ -255,6 +262,7 @@ Route::post('mobile/users', [UsersController::class, 'store'])->name('api.mobile
 Route::post('mobile/auth', [AuthsController::class, 'store'])->name('api.mobile.auth.store');
 //Route::get('mobile/refresh', [BootsController::class, 'refresh'])->name('api.mobile.boots.refresh');
 Route::get('mobile/icons', [IconController::class, 'index'])->name('api.mobile.icons.index');
+Route::get('mobile/icon-category', [IconCategoryController::class, 'index'])->name('api.mobile.icon_category.index');
 Route::get('mobile/ads', [AdController::class, 'index'])->name('api.mobile.ads.index');
 Route::get('mobile/backgrounds', [BackgroundController::class, 'index'])->name('api.mobile.backgrounds.index');
 Route::get('mobile/posts', [PostController::class, 'index'])->name('api.mobile.posts.index');

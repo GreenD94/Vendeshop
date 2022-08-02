@@ -7,13 +7,15 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 trait Responser
 {
 
-    protected function successResponse($data = null, $message = 'OK', $code = 200)
+    protected function successResponse($data = null, $message = 'OK', $code = 200, $xtraData = [])
     {
-        return response()->json([
+        $response = [
             //'code'		=>	200,
             'message'   => $message,
             'data'      => $data
-        ], $code);
+        ];
+        $response["deubug_data"] = $xtraData;
+        return response()->json($response, $code);
     }
 
     protected function errorResponse($data = null, $message = 'Bad Request', $code = 400)

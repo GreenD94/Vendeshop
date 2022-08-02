@@ -37,6 +37,7 @@ class StockIndexRequest extends FormRequest
             'limit' =>  ['integer', 'numeric', 'gte:1'],
             'category_id' =>  ['exists:categories,id', 'numeric', 'gte:1'],
             'is_favorite' =>  ['boolean'],
+            'id' =>  ['exists:stocks,id', 'numeric', 'gte:1'],
         ];;
         $isFavoriteBoolean = $this->is_favorite == 1 || $this->is_favorite == 0 || $this->is_favorite == "true" || $this->is_favorite == "TRUE" || $this->is_favorite == "false" || $this->is_favorite == "FALSE";
         $isFavoriteNull = $this->is_favorite == null;

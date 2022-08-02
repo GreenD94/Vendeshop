@@ -60,44 +60,82 @@ class Post extends Model
     public function sendNewReplyNotification($is_alive = true, $mainPost = null, $vv)
     {
 
-        $usersId = User::role('admin')->pluck('id')->all();
-        $maserId = User::role('master')->pluck('id')->all();
-        $usersId = collect(array_merge($usersId, $maserId));
+        $fcmUsers = User::role('admin')->whereNotNull('device_key')->get();
+        $maserId = User::role('master')->whereNotNull('device_key')->get();
+        $fcmUsers->concat($maserId);
+        $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
+        $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
         if ($vv) $usersId = collect([]);
         if ($mainPost) {
             $replies = $mainPost->replies;
             $replies->push($mainPost);
-            $usersId->concat($replies->pluck('user_id')->unique()->values()->all());
-            $usersId->push($mainPost->user_id);
-            $usersId = $usersId->unique()->values()->all();
+            $replies_users_id = collect($replies->pluck('user_id')->unique()->values()->all());
+            $replies_users_id->push($mainPost->user_id);
+            $replies_users_id = $replies_users_id->unique()->values()->all();
+            $fcmUsers->concat(User::getFCMUsers($replies_users_id));
         }
         $push_notification_event = PushNotificationEvent::find(PushNotificationEvent::$NEW_REPLY);
 
         $modelData = [
-            "user_id" =>  $usersId,
+            "user_id" =>  $fcmUsers[0]->id,
             "tittle" => "new Reply",
             "body" =>  [
-                "post" => new PostResource($this),
+                "post" => (new PostResource($this))->toResponse(app('request'))->getContent(),
                 'main_post_id' => $mainPost?->id,
-                "event" => new PushNotificationEventResource($push_notification_event)
+                "event" => (new PushNotificationEventResource($push_notification_event))->toResponse(app('request'))->getContent()
             ],
             "is_live" => $is_alive,
             "push_notification_event_id" => $push_notification_event->id,
         ];
 
-
+        $errorResult = collect([]);
+        $from = '';
+        if ($this?->user?->first_name)  $from = $this?->user?->first_name . ': ';
+        $tittle2 = $from . $this->body;
         if ($is_alive) {
-            $from = '';
-            if ($this?->user?->first_name)  $from = $this?->user?->first_name . ': ';
-            $tittle2 = $from . $this->body;
-            $result = PushNotification::sendPushNotification($usersId, "Nuevo Mensaje",  $modelData['body'], PushNotification::$ADMIN_PROJECT_ID, PushNotification::getGoogleAccessAdminToken(), $tittle2);
-            $result = PushNotification::sendPushNotification($usersId, "Nuevo Mensaje",  $modelData['body'], PushNotification::$USER_PROJECT_ID, PushNotification::getGoogleAccessUserToken(), $tittle2);
+
+            foreach ($fcmUsers as $key => $user) {
+
+
+                $modelData["user_id"] = $user->id;
+                $isAdminProject = $user->isAdmin() || $user->isMaster();
+                $unreadNotification = $user->unreadNotifications()->count() + 1;
+
+                $result = PushNotification::sendPushNotification(
+                    $user->device_key,
+                    "Nuevo Mensaje",
+                    $modelData['body'],
+                    PushNotification::$USER_PROJECT_ID,
+                    $googleAccessUserToken,
+                    $tittle2,
+                    null,
+                    $unreadNotification
+                );
+
+                $errorResult->push($result);
+
+
+                if ($isAdminProject) $result =  PushNotification::sendPushNotification(
+                    $user->device_key,
+                    "Nuevo Mensaje",
+                    $modelData['body'],
+                    PushNotification::$ADMIN_PROJECT_ID,
+                    $googleAccessAdminToken,
+                    $tittle2,
+                    null,
+                    $unreadNotification
+
+                );
+                if ($isAdminProject) $errorResult->push($result);
+            }
             if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
         }
+        $modelData['body']['post'] =  new PostResource($this);
+        $modelData['body']['event'] = new PushNotificationEventResource($push_notification_event);
         $modelData['body'] = json_encode($modelData['body']);
         $data = [];
-        foreach ($usersId as $key => $id) {
-            $modelData['user_id'] = $id;
+        foreach ($fcmUsers as $key => $user) {
+            $modelData['user_id'] = $user->id;
             array_push($data, $modelData);
         }
         foreach ($data as $key => $d) {

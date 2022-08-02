@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class IconCategory extends Model
 {
     use HasFactory;
+    protected $with = ['image'];
+    protected $fillable = ['name', 'is_favorite', 'color', 'image_id'];
+    public function image()
+    {
+        return $this->belongsTo(Image::class, 'image_id', 'id');
+    }
 }

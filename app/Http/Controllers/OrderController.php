@@ -97,12 +97,12 @@ class OrderController extends Controller
         $createdModel->addDetails($stocks, collect($request->stocks));
         $createdModel->addTickets($ticketModel);
         $createdModel->addStatusLog(OrderStatus::find(1));
-        $createdModel->sendNotification();
+        $sendNotificationResponse = $createdModel->sendNotification();
         $createdModel->sendOrderCreatedMail([]);
 
         $createdModel = Order::find($createdModel->id);
 
-        return $this->successResponse(new OrderResource($createdModel));
+        return $this->successResponse(new OrderResource($createdModel), "OK", 200, $sendNotificationResponse);
     }
 
     /**
@@ -139,21 +139,22 @@ class OrderController extends Controller
 
         $createdModel = Order::find($request->id);
 
-
+        $sendNotificationResponse = [];
         if ($request->has('numero_guia'))   $createdModel->numero_guia = $request->numero_guia;
         if ($request->has('numero_guia'))   $createdModel->save();
         if ($request->has('numero_guia'))   $createdModel->addStatusLog(OrderStatus::find(OrderStatus::$EN_ENVIO));
-        if ($request->has('numero_guia'))   $createdModel->sendOrderStatusChangedMail([]);
-        if ($request->has('numero_guia'))  return $this->successResponse(new OrderResource($createdModel));
+        if ($request->has('numero_guia'))  $sendNotificationResponse = $createdModel->sendStatusChangedNotification();
+        if ($request->has('numero_guia'))   $createdModel->save();
+        if ($request->has('numero_guia'))  return $this->successResponse(new OrderResource($createdModel), "OK", 200, $sendNotificationResponse);
 
 
 
         $orderStatus = OrderStatus::find($request->order_status_id);
         $createdModel->addStatusLog($orderStatus);
         if ($orderStatus->isListo())  $createdModel->addEarningsToUser();
-        $createdModel->sendStatusChangedNotification();
+        $sendNotificationResponse =  $createdModel->sendStatusChangedNotification();
         $createdModel->sendOrderStatusChangedMail([]);
-        return $this->successResponse(new OrderResource($createdModel));
+        return $this->successResponse(new OrderResource($createdModel), "OK", 200, $sendNotificationResponse);
     }
 
     /**

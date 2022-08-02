@@ -11,6 +11,7 @@ class Stock extends Model
 
     use HasFactory;
     protected $table = 'stocks';
+    protected $with = ["categories"];
     protected $fillable = [
         'price',
         'mock_price',
@@ -54,7 +55,7 @@ class Stock extends Model
     }
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'category_subscriptions', 'stock_id', 'category_id');
+        return $this->belongsToMany(Category::class, 'category_subscriptions', 'stock_id', 'category_id')->withTimestamps();
     }
     public function color()
     {
@@ -88,6 +89,12 @@ class Stock extends Model
      */
     public function scopeWhenOrderBy($query, $orderBy)
     {
+        if ($orderBy == "last_updated") $query->orderByDesc(
+            CategorySubscription::select('id')
+                ->whereColumn('stock_id', 'stocks.id')
+                ->orderByDesc('id')
+                ->limit(1)
+        );
         if ($orderBy == "latest") $query->latest();
         if ($orderBy == "random") $query->inRandomOrder();
         if ($orderBy == "desc") $query->orderBy('id', 'desc');
@@ -112,6 +119,11 @@ class Stock extends Model
             $query->whereHas('categories', function (Builder $query2) use ($category_id) {
                 $query2->where('categories.id',  $category_id);
             });
+    }
+
+    public function scopeWhenId($query, $id)
+    {
+        if ($id) $query->where('id',  $id);
     }
 
     // public function scopeWhenSearch($query, $search)
