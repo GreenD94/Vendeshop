@@ -31,6 +31,9 @@ class UserResource extends JsonResource
             'address' => $this->when($this->addresses, function () {;
                 return    addressResource::collection($this->addresses);
             }, null),
+            'roles' => $this->when($this->roles, function () {;
+                return    RoleResource::collection($this->roles);
+            }, null),
             'dni' => $this->dni,
             'tickets_total' => $this->when($this->tickets, function () {
                 return floatval(number_format((float) $this->tickets->sum('value'), 2, '.', ''));

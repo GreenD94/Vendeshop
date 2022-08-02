@@ -24,7 +24,8 @@ class PostController extends Controller
     {
         $models = Post::whenisMain(true)
             ->whenVV($request->boolean('vv'))
-            ->whenId($request->user_id)
+            ->whenId($request->id)
+            ->whenUserId($request->user_id)
             ->orderBy('id', 'desc')
             ->paginate($request->limit ?? 5);
         $data = [

@@ -32,7 +32,7 @@ class StockIndexRequest extends FormRequest
         $rules = [
             'page' =>  ['integer', 'numeric', 'gte:1'],
             'order_by' => [
-                Rule::in(['latest', 'random']),
+                Rule::in(['latest', 'random', 'last_updated', 'desc']),
             ],
             'limit' =>  ['integer', 'numeric', 'gte:1'],
             'category_id' =>  ['exists:categories,id', 'numeric', 'gte:1'],
