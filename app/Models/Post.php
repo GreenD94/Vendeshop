@@ -72,7 +72,8 @@ class Post extends Model
             $replies_users_id = collect($replies->pluck('user_id')->unique()->values()->all());
             $replies_users_id->push($mainPost->user_id);
             $replies_users_id = $replies_users_id->unique()->values()->all();
-            $fcmUsers->concat(User::getFCMUsers($replies_users_id));
+
+            $fcmUsers->concat(User::getFCMUsers($replies_users_id)->get());
         }
         $push_notification_event = PushNotificationEvent::find(PushNotificationEvent::$NEW_REPLY);
 
@@ -81,7 +82,7 @@ class Post extends Model
             "tittle" => "new Reply",
             "body" =>  [
                 "post" => (new PostResource($this))->toResponse(app('request'))->getContent(),
-                'main_post_id' => $mainPost?->id,
+                'main_post_id' => ((string) $mainPost?->id) ?? "",
                 "event" => (new PushNotificationEventResource($push_notification_event))->toResponse(app('request'))->getContent()
             ],
             "is_live" => $is_alive,
@@ -98,6 +99,7 @@ class Post extends Model
 
 
                 $modelData["user_id"] = $user->id;
+                $modelData['body']["user_id"] = (string) $user->id;
                 $isAdminProject = $user->isAdmin() || $user->isMaster();
                 $unreadNotification = $user->unreadNotifications()->count() + 1;
 
