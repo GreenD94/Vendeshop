@@ -128,7 +128,6 @@ class Post extends Model
                 );
                 if ($isAdminProject) $errorResult->push($result);
             }
-            if ($result["code"] != 200)  return ['data' => $result["data"], "message" => $result["message"], "code" =>  $result["code"]];
         }
         $modelData['body']['post'] =  new PostResource($this);
         $modelData['body']['event'] = new PushNotificationEventResource($push_notification_event);
@@ -141,7 +140,7 @@ class Post extends Model
         foreach ($data as $key => $d) {
             PushNotification::create($d);
         }
-        return  ['data' => [], "message" => "success", "code" => 200];
+        return  ['data' =>  $errorResult, "message" => "success", "code" => 200];
     }
 
     public function scopeWhenVV($query, $vv)

@@ -75,8 +75,8 @@ class PostController extends Controller
         $createdModel = Post::create($data);
         if ($request->has('post_id')) $postMain->replies()->attach($createdModel->id);
         $createdModel = Post::find($createdModel->id);
-        $createdModel->sendNewReplyNotification(true, $postMain, $request->boolean('vv'));
-        return $this->successResponse(new PostResource($createdModel));
+        $extraData =  $createdModel->sendNewReplyNotification(true, $postMain, $request->boolean('vv'));
+        return $this->successResponse(new PostResource($createdModel),  'OK', 200, $extraData);
     }
 
     /**
