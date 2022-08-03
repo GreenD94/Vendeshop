@@ -67,7 +67,7 @@ class PushNotification extends Model
 
                 "android" => [
                     'notification' => [
-
+                        'image' => $imageUrl,
                         'notification_count' => $badge
                     ]
                 ],
@@ -78,15 +78,18 @@ class PushNotification extends Model
                             'badge' => $badge
                         ]
                     ],
+                    'fcm_options' => [
+                        'image' => $imageUrl
+                    ]
 
                 ]
 
             ],
         ];
 
-        if ($imageUrl) $message['message']['android']['notification']['image'] = $imageUrl;
-        if ($imageUrl) $message['message']['apns']['fcm_options'] = [];
-        if ($imageUrl) $message['message']['apns']['fcm_options']['image'] = $imageUrl;
+        // if ($imageUrl) $message['message']['android']['notification']['image'] = $imageUrl;
+        // if ($imageUrl) $message['message']['apns']['fcm_options'] = [];
+        // if ($imageUrl) $message['message']['apns']['fcm_options']['image'] = $imageUrl;
 
 
 

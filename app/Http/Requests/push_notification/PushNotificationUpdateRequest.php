@@ -17,6 +17,7 @@ class PushNotificationUpdateRequest extends FormRequest
      */
     public function authorize()
     {
+        if ($this->has('is_new')) return true;
         $authUser = User::find(Auth()->id());
         return  $authUser->hasRole(['admin', 'master']);
         return true;
