@@ -22,18 +22,20 @@ class ShippingCostController extends Controller
     public function index(ShippingCostIndexRequest $request)
     {
         $modelQuery = ShippingCost::orderBy('id', 'desc');
-        if (!$request->page) return $this->successResponse(ShippingCostResource::collection($modelQuery->get()));
+        if (!$request->page) {
+            return $this->successResponse(ShippingCostResource::collection($modelQuery->get()));
+        }
 
         $stocks = $modelQuery->paginate($request->limit ?? 5);
         $data = [
             'total' => (int) $stocks->total(),
             'per_page' => (int) $stocks->perPage(),
             'current_page' => (int) $stocks->currentPage(),
-            'last_page' => (int)$stocks->lastPage(),
+            'last_page' => (int) $stocks->lastPage(),
             'next_page_url' => $stocks->nextPageUrl(),
             'prev_page_url' => $stocks->previousPageUrl(),
             'prev_page_url' => $stocks->previousPageUrl(),
-            'shipping_cost' =>  ShippingCostResource::collection($stocks->items()),
+            'shipping_cost' => ShippingCostResource::collection($stocks->items()),
         ];
         return $this->successResponse($data);
     }
@@ -57,14 +59,19 @@ class ShippingCostController extends Controller
     public function store(ShippingCostStoreRequest $request)
     {
 
-        $modelData = $request->only('is_active', 'price', 'price_percentage');
+        $modelData = $request->only('is_active', 'price', 'price_percentage', 'poblacion_origen', 'poblacion_destino',
+            'departamento_destino', 'tipo_envio', 'd2021_paq', 'd2021_msj', 'd1kg_msj', 'd2kg_msj', 'd3kj_msj',
+            'd4kg_msj', 'd5kg_msj');
         if ($request->boolean('is_active')) {
             ShippingCost::where('id', '>', 0)->update([
-                'is_active' => false
+                'is_active' => false,
             ]);
         }
         $isFirst = ShippingCost::where('id', '>', 0)->count() == 0;
-        if ($isFirst) $modelData['is_active'] = true;
+        if ($isFirst) {
+            $modelData['is_active'] = true;
+        }
+
         $createdModel = ShippingCost::create($modelData);
 
         return $this->successResponse(new ShippingCostResource($createdModel));
@@ -104,11 +111,22 @@ class ShippingCostController extends Controller
         $modelData = $request->only(
             'is_active',
             'price',
-            'price_percentage'
+            'price_percentage',
+            'poblacion_origen',
+            'poblacion_destino',
+            'departamento_destino',
+            'tipo_envio',
+            'd2021_paq',
+            'd2021_msj',
+            'd1kg_msj',
+            'd2kg_msj',
+            'd3kj_msj',
+            'd4kg_msj',
+            'd5kg_msj'
         );
         if ($request->boolean('is_active')) {
             ShippingCost::where('id', '>', 0)->update([
-                'is_active' => false
+                'is_active' => false,
             ]);
         }
         ShippingCost::where("id", $request->id)->update($modelData);
@@ -125,9 +143,15 @@ class ShippingCostController extends Controller
     {
         $createdModel = ShippingCost::find($request->id);
         $isAlone = ShippingCost::where('id', '>', 0)->count() == 1;
-        if ($isAlone) return $this->errorResponse([], "no se puede borrar El Costo De Envio, ya que es el unico", 422);
+        if ($isAlone) {
+            return $this->errorResponse([], "no se puede borrar El Costo De Envio, ya que es el unico", 422);
+        }
+
         ShippingCost::destroy($request->id);
-        if ($createdModel->is_active) ShippingCost::where("is_active", false)->update(["is_active" => true]);
+        if ($createdModel->is_active) {
+            ShippingCost::where("is_active", false)->update(["is_active" => true]);
+        }
+
         return $this->successResponse(new ShippingCostResource($createdModel));
     }
 }
