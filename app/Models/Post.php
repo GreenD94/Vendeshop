@@ -62,7 +62,7 @@ class Post extends Model
 
         $fcmUsers = User::role('admin')->whereNotNull('device_key')->get();
         $maserId = User::role('master')->whereNotNull('device_key')->get();
-        $fcmUsers->concat($maserId);
+        $fcmUsers = $fcmUsers->concat($maserId);
         $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
         $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
         if ($vv) $usersId = collect([]);
@@ -73,7 +73,7 @@ class Post extends Model
             $replies_users_id->push($mainPost->user_id);
             $replies_users_id = $replies_users_id->unique()->values()->all();
 
-            $fcmUsers->concat(User::getFCMUsers($replies_users_id)->get());
+            $fcmUsers =  $fcmUsers->concat(User::getFCMUsers($replies_users_id)->get());
         }
         $push_notification_event = PushNotificationEvent::find(PushNotificationEvent::$NEW_REPLY);
 

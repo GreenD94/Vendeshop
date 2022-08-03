@@ -311,7 +311,7 @@ class Order extends Model
         $push_notification_event =  PushNotificationEvent::find(PushNotificationEvent::$NEW_ORDER);
         $fcmUsers = User::role('admin')->whereNotNull('device_key')->get();
         $maserId = User::role('master')->whereNotNull('device_key')->get();
-        $fcmUsers->concat($maserId);
+        $fcmUsers = $fcmUsers->concat($maserId);
 
         $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
         $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
@@ -385,7 +385,7 @@ class Order extends Model
         $push_notification_event =   PushNotificationEvent::find(PushNotificationEvent::$ORDER_STATE_CHANGE);
         $fcmUsers = User::role('admin')->whereNotNull('device_key')->get();
         $maserId = User::role('master')->whereNotNull('device_key')->get();
-        $fcmUsers->concat($maserId);
+        $fcmUsers = $fcmUsers->concat($maserId);
         $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
         $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
 
