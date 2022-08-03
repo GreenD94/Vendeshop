@@ -13,6 +13,7 @@ use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\IconCategoryResource;
 use App\Http\Resources\IconResource;
+use App\Http\Resources\PushNotificationResource;
 use App\Http\Resources\StockResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\VideoResource;
@@ -22,6 +23,7 @@ use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Icon;
 use App\Models\IconCategory;
+use App\Models\PushNotification;
 use App\Models\Stock;
 use App\Models\User;
 use App\Models\Video;
@@ -205,6 +207,7 @@ class BootsController extends Controller
         // ];
 
         $authUser = User::find(Auth()->id() ?? 1);
+        $lastComercialNotificacion = PushNotification::where('user_id', auth()->id())->where('is_new', true)->latest()->first();
         $data = [
             "latest_stocks" => $latest_stocks,
             "stocks" => $stocks,
@@ -216,6 +219,7 @@ class BootsController extends Controller
             "ads" => $ads,
             "videos" => $videos,
             "backgrounds" => $backgrounds,
+            "last_comercial_notificacion" => $lastComercialNotificacion ? (new PushNotificationResource($lastComercialNotificacion)) : null,
             "categories" => CategoryResource::collection(Category::orderBy('id', 'desc')->get()),
             "auth" => auth()->check() ? new UserResource(User::find(Auth()->id() ?? 1)) : null,
             "badge" => $authUser->unreadNotifications()->count()
