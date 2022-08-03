@@ -24,8 +24,12 @@ class ShippingCostIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'page' =>  ['integer', 'numeric', 'gte:1'],
-            'limit' =>  ['integer', 'numeric', 'gte:1'],
+            'page' => ['integer', 'numeric', 'gte:1'],
+            'limit' => ['integer', 'numeric', 'gte:1'],
         ];
+    }
+    protected function failedValidation(Validator $validator)
+    {
+        $this->errorResponse($validator->errors(), "Validation Error", 422);
     }
 }
