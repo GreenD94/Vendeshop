@@ -67,19 +67,22 @@ class PushNotification extends Model
 
                 "android" => [
                     'notification' => [
-                        'image' => $imageUrl,
-                        'notification_count' => $badge
+                        'image' => $imageUrl ?? "",
+                        'notification_count' => $badge,
+                        'sound' => 'tarzanwut.wav'
                     ]
                 ],
                 "apns" => [
                     'payload' => [
                         "aps" => [
+
                             'mutable-content' => 1,
-                            'badge' => $badge
+                            'badge' => $badge,
+                            'sound' => 'tarzanwut.wav'
                         ]
                     ],
                     'fcm_options' => [
-                        'image' => $imageUrl
+                        'image' => $imageUrl ?? ""
                     ]
 
                 ]
