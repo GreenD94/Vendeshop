@@ -24,6 +24,7 @@ use App\Models\Category;
 use App\Models\Icon;
 use App\Models\IconCategory;
 use App\Models\PushNotification;
+use App\Models\PushNotificationEvent;
 use App\Models\Stock;
 use App\Models\User;
 use App\Models\Video;
@@ -207,7 +208,7 @@ class BootsController extends Controller
         // ];
 
         $authUser = User::find(Auth()->id() ?? 1);
-        $lastComercialNotificacion = PushNotification::where('user_id', auth()->id())->where('is_new', true)->latest()->first();
+        $lastComercialNotificacion = PushNotification::where('user_id', auth()->id())->where('is_new', true)->where('push_notification_event_id', PushNotificationEvent::$NEWS)->latest()->first();
         $data = [
             "latest_stocks" => $latest_stocks,
             "stocks" => $stocks,
