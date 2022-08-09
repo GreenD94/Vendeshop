@@ -254,11 +254,12 @@ Route::group(['middleware' => 'EnsureTokenIsAuth'], function () {
 Route::group(['middleware' => 'EnsureTokenIsValid'], function () {
     Route::get('mobile/boots', [BootsController::class, 'index'])->name('api.mobile.boots.index');
     Route::get('mobile/stocks', [StocksController::class, 'index'])->name('api.mobile.stocks.index');
+    Route::post('mobile/users', [UsersController::class, 'store'])->name('api.mobile.users.store');
 });
 
 //------------------------------------------------
 Route::get('mobile/categories', [CategoriesController::class, 'index'])->name('api.mobile.categories.index');
-Route::post('mobile/users', [UsersController::class, 'store'])->name('api.mobile.users.store');
+
 Route::post('mobile/auth', [AuthsController::class, 'store'])->name('api.mobile.auth.store');
 //Route::get('mobile/refresh', [BootsController::class, 'refresh'])->name('api.mobile.boots.refresh');
 Route::get('mobile/icons', [IconController::class, 'index'])->name('api.mobile.icons.index');

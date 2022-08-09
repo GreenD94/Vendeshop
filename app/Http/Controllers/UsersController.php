@@ -67,6 +67,7 @@ class UsersController extends Controller
      */
     public function store(UserStoreRequest $request)
     {
+
         $data = $request->only(
             'first_name',
             'last_name',
@@ -95,7 +96,7 @@ class UsersController extends Controller
 
 
         if ($request->role_id && Auth()->check()) {
-            $createdModel->assignRole(Role::find($request->role_id));
+            $createdModel->assignRole($request->role_id);
         } else {
             $createdModel->assignRole(Role::findByName('customer')->id);
         }
