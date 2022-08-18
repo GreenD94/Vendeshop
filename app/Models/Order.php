@@ -364,8 +364,8 @@ class Order extends Model
             }
         }
 
-        $finalData = [];
-        $modelData['body']['comercial'] =  new OrderResource($this);
+
+        $modelData['body']['order'] =  new OrderResource($this);
         $modelData['body']['event'] = new PushNotificationEventResource($push_notification_event);
         $modelData['body'] = json_encode($modelData['body']);
         $data = [];

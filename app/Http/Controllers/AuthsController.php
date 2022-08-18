@@ -124,6 +124,9 @@ class AuthsController extends Controller
 
         $user = User::find(Auth::id());
         $user->tokens()->delete();
+        $user->sendResetBadgeNotification();
+        $user->device_key = "";
+        $user->save();
         return $this->successResponse();
     }
 }

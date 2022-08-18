@@ -260,4 +260,35 @@ class User extends Authenticatable
     {
         return $this->hasRole([User::$MASTER_ROLE]);
     }
+
+
+    public function sendResetBadgeNotification()
+    {
+        $googleAccessAdminToken = PushNotification::getGoogleAccessAdminToken();
+        $googleAccessUserToken = PushNotification::getGoogleAccessUserToken();
+        $unreadNotification = 0;
+        PushNotification::sendPushNotification(
+            $this->device_key,
+            "Desconectado",
+            "Hasta Pronto " . $this->first_name,
+            PushNotification::$ADMIN_PROJECT_ID,
+            $googleAccessAdminToken,
+            null,
+            null,
+            $unreadNotification
+
+        );
+
+        PushNotification::sendPushNotification(
+            $this->device_key,
+            "Desconectado",
+            "Hasta Pronto " . $this->first_name,
+            PushNotification::$USER_PROJECT_ID,
+            $googleAccessUserToken,
+            null,
+            null,
+            $unreadNotification
+
+        );
+    }
 }

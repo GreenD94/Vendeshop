@@ -144,6 +144,7 @@ class OrderController extends Controller
         if ($request->has('numero_guia'))   $createdModel->save();
         if ($request->has('numero_guia'))   $createdModel->addStatusLog(OrderStatus::find(OrderStatus::$EN_ENVIO));
         if ($request->has('numero_guia'))  $sendNotificationResponse = $createdModel->sendStatusChangedNotification();
+        if ($request->has('numero_guia')) $createdModel->sendOrderStatusChangedMail([]);
         if ($request->has('numero_guia'))   $createdModel->save();
         if ($request->has('numero_guia'))  return $this->successResponse(new OrderResource($createdModel), "OK", 200, $sendNotificationResponse);
 
