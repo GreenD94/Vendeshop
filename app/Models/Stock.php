@@ -23,7 +23,10 @@ class Stock extends Model
         'color_id',
         'size_id',
         'ribbon_id',
-        'is_available'
+        'is_available',
+        'rx_cost',
+        'nacional_cost',
+        'urbano_cost'
     ];
     // protected $appends = ['sizes', 'colors'];
 
@@ -200,5 +203,14 @@ class Stock extends Model
         if ($is_favorite && $is_favorite_id) $query->whereHas('favorited_by_users', function (Builder $query2) use ($is_favorite) {
             $query2->where('users.id',  $is_favorite);
         });
+    }
+
+
+    public  function CalculateShippingCost($tipoEnvio)
+    {
+
+        if ($tipoEnvio == ShippingCost::$RX) return $this->rx_cost;
+        if ($tipoEnvio == ShippingCost::$NACIONAL) return $this->nacional_cost;
+        if ($tipoEnvio == ShippingCost::$URBANO) return $this->urbano_cost;
     }
 }

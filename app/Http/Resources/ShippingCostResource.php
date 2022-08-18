@@ -16,8 +16,8 @@ class ShippingCostResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'is_active' => (bool) $this->is_active,
-            'price' => floatval(number_format((float) $this->price, 2, '.', '')),
+            'is_active' => (bool)  $this->is_active,
+            'price' => floatval(number_format((float)$this->price, 2, '.', '')),
             'price_percentage' => $this->price_percentage,
             'poblacion_origen' => $this->poblacion_origen,
             'poblacion_destino' => $this->poblacion_destino,

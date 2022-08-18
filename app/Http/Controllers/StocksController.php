@@ -40,7 +40,8 @@ class StocksController extends Controller
             'product.sizes',
             'product.colors',
             'ribbon',
-            'favorited_by_users'
+            'favorited_by_users',
+
         ];
         $data = [];
         if ($request->has("page")) {
@@ -108,7 +109,10 @@ class StocksController extends Controller
             'color_id',
             'size_id',
             'ribbon_id',
-            'is_available'
+            'is_available',
+            'rx_cost',
+            'nacional_cost',
+            'urbano_cost'
         ), ["cover_image_id" => $coverImageModel->id]);
 
         // $modelData['discount'] = $modelData['discount'] / 100;
@@ -201,7 +205,10 @@ class StocksController extends Controller
             'color_id',
             'size_id',
             'ribbon_id',
-            'is_available'
+            'is_available',
+            'rx_cost',
+            'nacional_cost',
+            'urbano_cost'
         );
 
         if ($request->ribbon_id == 0) $modelData['ribbon_id'] = null;
