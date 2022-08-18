@@ -22,11 +22,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/testmail', function () {
-    Excel::import(new ShippingCostImport, 'tarifas_vendeshop.xlsx');
+// Route::get('/testmail', function () {
+//     Excel::import(new ShippingCostImport, 'tarifas_vendeshop.xlsx');
 
-    return redirect('/')->with('success', 'All good!');
-});
+//     return redirect('/')->with('success', 'All good!');
+// });
 
 Route::get('/web/terms-and-conditions', function () {
 

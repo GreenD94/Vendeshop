@@ -57,7 +57,22 @@ class ShippingCostController extends Controller
     public function store(ShippingCostStoreRequest $request)
     {
 
-        $modelData = $request->only('is_active', 'price', 'price_percentage');
+        $modelData = $request->only(
+            'is_active',
+            'price',
+            'price_percentage',
+            'poblacion_origen',
+            'poblacion_destino',
+            'departamento_destino',
+            'tipo_envio',
+            'd2021_paq',
+            'd2021_msj',
+            'd1kg_msj',
+            'd2kg_msj',
+            'd3kg_msj',
+            'd4kg_msj',
+            'd5kg_msj'
+        );
         if ($request->boolean('is_active')) {
             ShippingCost::where('id', '>', 0)->update([
                 'is_active' => false
@@ -104,7 +119,18 @@ class ShippingCostController extends Controller
         $modelData = $request->only(
             'is_active',
             'price',
-            'price_percentage'
+            'price_percentage',
+            'poblacion_origen',
+            'poblacion_destino',
+            'departamento_destino',
+            'tipo_envio',
+            'd2021_paq',
+            'd2021_msj',
+            'd1kg_msj',
+            'd2kg_msj',
+            'd3kg_msj',
+            'd4kg_msj',
+            'd5kg_msj'
         );
         if ($request->boolean('is_active')) {
             ShippingCost::where('id', '>', 0)->update([

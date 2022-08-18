@@ -57,9 +57,11 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\tokens\TokensController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\VideosController;
+use App\Http\Resources\ShippingCostResource;
 use App\Models\Order;
 use App\Models\PayuConfig;
 use App\Models\ProductDetail;
+use App\Models\ShippingCost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Mail;
@@ -414,3 +416,19 @@ Route::post('/payu-payment-test', function (Request $request) {
 })->name('payu.payment.test');
 
 Route::post('/payu-payment', [PayuController::class, 'store'])->name('api.mobile.payu.store');
+
+
+Route::post('/test', function (Request $request) {
+
+    $data = preg_replace('/[0-9]+/', '', $request->formatted_address);
+    $data = collect(explode(",", $data));
+    $data = $data->map(function ($item, $key) {
+        return  trim($item);
+    });
+    $query = ShippingCost::findFromGoogleMaps($data);
+    return  response()->json([
+        //'code'		=>	200,
+        'message'   => "test",
+        'data'      => ShippingCostResource::collection($query->get())
+    ], 200);
+});

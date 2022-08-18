@@ -53,6 +53,9 @@ class StockResource extends JsonResource
             'is_favorite' => $this->when($this->favorited_by_users->isNotEmpty(), function () {
                 return (bool) !!$this->favorited_by_users->firstWhere('id', auth()->id());
             }, false),
+            'rx_cost' => floatval(number_format((float)$this->rx_cost, 2, '.', '')),
+            'nacional_cost' => floatval(number_format((float)$this->nacional_cost, 2, '.', '')),
+            'urbano_cost' => floatval(number_format((float)$this->urbano_cost, 2, '.', ''))
         ];
     }
 }
