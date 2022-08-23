@@ -427,7 +427,7 @@ Route::post('/payu-payment-test', function (Request $request) {
 Route::post('/payu-payment', [PayuController::class, 'store'])->name('api.mobile.payu.store');
 
 
-Route::post('/test', function (Request $request) {
+Route::get('/test', function (Request $request) {
 
     $data = preg_replace('/[0-9]+/', '', $request->formatted_address);
     $data = collect(explode(",", $data));

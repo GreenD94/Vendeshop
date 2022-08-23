@@ -150,6 +150,6 @@ class IconCategoryController extends Controller
         $idmiage = $createdModel->image_id;
         IconCategory::destroy($createdModel->id);
         Image::destroy($idmiage);
-        return $this->successResponse(new IconCategory($createdModel));
+        return $this->successResponse(new IconCategoryResource($createdModel));
     }
 }
