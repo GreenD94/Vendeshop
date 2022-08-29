@@ -174,6 +174,16 @@ class PushNotification extends Model
                 );
                 if ($isAdminProject) $errorResult->push($result);
             }
+            GuestUsers::sendNewsNotification(
+                $comercial->tittle ?? "NOTICIAS",
+                $modelData['body'],
+                PushNotification::$USER_PROJECT_ID,
+                $googleAccessUserToken,
+                $comercial->name,
+                Storage::disk('s3')->url(
+                    $comercial?->image?->url
+                ),
+            );
         }
 
         $modelData['body']['comercial'] =  new ComercialResource($comercial);

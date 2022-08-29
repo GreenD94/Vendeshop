@@ -20,6 +20,7 @@ use App\Http\Controllers\ComercialController;
 use App\Http\Controllers\company\CompaniesController;
 use App\Http\Controllers\currency\CurrenciesController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\GuestUsersController;
 use App\Http\Controllers\IconCategoryController;
 use App\Http\Controllers\IconController;
 use App\Http\Controllers\image\OfficeImageController;
@@ -273,6 +274,7 @@ Route::get('mobile/videos', [VideosController::class, 'index'])->name('api.mobil
 
 
 
+
 Route::post('/payu-payment-test', function (Request $request) {
     $month = "10";
     $data = [
@@ -441,3 +443,12 @@ Route::get('/test', function (Request $request) {
         'data'      => ShippingCostResource::collection($query->get())
     ], 200);
 });
+
+
+
+
+
+Route::get('mobile/guest-user', [GuestUsersController::class, 'index'])->name('api.mobile.guest-user.index');
+Route::post('mobile/guest-user', [GuestUsersController::class, 'store'])->name('api.mobile.guest-user.store');
+Route::put('mobile/guest-user', [GuestUsersController::class, 'update'])->name('api.mobile.guest-user.update');
+Route::delete('mobile/guest-user', [GuestUsersController::class, 'destroy'])->name('api.mobile.guest-user.destroy');

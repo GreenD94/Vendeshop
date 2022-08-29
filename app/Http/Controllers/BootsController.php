@@ -223,7 +223,8 @@ class BootsController extends Controller
             "last_comercial_notificacion" => $lastComercialNotificacion ? (new PushNotificationResource($lastComercialNotificacion)) : null,
             "categories" => CategoryResource::collection(Category::orderBy('id', 'desc')->get()),
             "auth" => auth()->check() ? new UserResource(User::find(Auth()->id() ?? 1)) : null,
-            "badge" => $authUser->unreadNotifications()->count()
+            "badge" => $authUser->unreadNotifications()->count(),
+
         ];
 
         return $this->successResponse($data);
