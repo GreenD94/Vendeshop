@@ -11,7 +11,7 @@ class Stock extends Model
 
     use HasFactory;
     protected $table = 'stocks';
-    protected $with = ["categories"];
+    protected $with = ["categories", 'animation_cover'];
     protected $fillable = [
         'price',
         'mock_price',
@@ -26,7 +26,8 @@ class Stock extends Model
         'is_available',
         'rx_cost',
         'nacional_cost',
-        'urbano_cost'
+        'urbano_cost',
+        'animation_id'
     ];
     // protected $appends = ['sizes', 'colors'];
 
@@ -34,6 +35,13 @@ class Stock extends Model
     {
         return $this->belongsTo(Image::class, 'cover_image_id', 'id');
     }
+
+
+    public function animation_cover()
+    {
+        return $this->belongsTo(Image360i::class, 'animation_id', 'id');
+    }
+
     public function ribbon()
     {
         return $this->belongsTo(Ribbon::class, 'ribbon_id', 'id');

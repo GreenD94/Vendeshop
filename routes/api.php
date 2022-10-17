@@ -23,6 +23,7 @@ use App\Http\Controllers\EmailController;
 use App\Http\Controllers\GuestUsersController;
 use App\Http\Controllers\IconCategoryController;
 use App\Http\Controllers\IconController;
+use App\Http\Controllers\Image360Controller;
 use App\Http\Controllers\image\OfficeImageController;
 use App\Http\Controllers\image\ProductImageController;
 use App\Http\Controllers\image\UserImageController;
@@ -245,6 +246,13 @@ Route::group(['middleware' => 'EnsureTokenIsAuth'], function () {
     Route::put('mobile/posts', [PostController::class, 'update'])->name('api.mobile.posts.update');
     Route::delete('mobile/posts', [PostController::class, 'destroy'])->name('api.mobile.posts.destroy');
 
+
+    Route::post('mobile/image360', [Image360Controller::class, 'store'])->name('api.mobile.image360.store');
+    Route::put('mobile/image360', [Image360Controller::class, 'update'])->name('api.mobile.image360.update');
+    Route::delete('mobile/image360', [Image360Controller::class, 'destroy'])->name('api.mobile.image360.destroy');
+
+
+
     Route::get('mobile/address', [addressController::class, 'index'])->name('api.mobile.address.index');
     Route::post('mobile/address', [addressController::class, 'store'])->name('api.mobile.address.store');
     Route::put('mobile/address', [addressController::class, 'update'])->name('api.mobile.address.update');
@@ -273,7 +281,7 @@ Route::get('mobile/posts', [PostController::class, 'index'])->name('api.mobile.p
 Route::get('mobile/videos', [VideosController::class, 'index'])->name('api.mobile.videos.index');
 
 
-
+Route::get('mobile/image360', [Image360Controller::class, 'index'])->name('api.mobile.image360.index');
 
 Route::post('/payu-payment-test', function (Request $request) {
     $month = "10";

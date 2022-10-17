@@ -112,7 +112,8 @@ class StocksController extends Controller
             'is_available',
             'rx_cost',
             'nacional_cost',
-            'urbano_cost'
+            'urbano_cost',
+            'animation_id'
         ), ["cover_image_id" => $coverImageModel->id]);
 
         // $modelData['discount'] = $modelData['discount'] / 100;
@@ -208,11 +209,15 @@ class StocksController extends Controller
             'is_available',
             'rx_cost',
             'nacional_cost',
-            'urbano_cost'
+            'urbano_cost',
+            'animation_id'
         );
 
         if ($request->ribbon_id == 0) $modelData['ribbon_id'] = null;
         if ($request->has('discount')) $modelData['discount'] = $modelData['discount'] / 100;
+
+        if ($request->animation_id == 0) $modelData["animation_id"] = null;
+
 
         if ($request->id == '*') {
             Stock::whenCategoryId($request->where_category_id)->update($modelData);

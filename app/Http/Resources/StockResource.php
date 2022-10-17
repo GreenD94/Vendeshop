@@ -27,7 +27,8 @@ class StockResource extends JsonResource
             //'mock_discount' => floatval(number_format($discount, 2, '.', '')),
             'discount' => floatval(number_format($discount, 2, '.', '')),
             'cover_image' => new ImageResource($this->whenLoaded('cover_image')),
-            'ribbon' => new RibbonResource($this->whenLoaded('ribbon')),
+            'cover_image' => new ImageResource($this->whenLoaded('cover_image')),
+            'animation_cover' => new Animation360Resource($this->whenLoaded('animation_cover')),
             //'product'=>$this->product,
             'price' => $this->price,
             'images' => $this->when(!!$this->images, function () {
@@ -42,6 +43,7 @@ class StockResource extends JsonResource
             'colors' => $this->when(!!$this->colors, function () {
                 return ColorResource::collection($this->colors);
             }),
+            'ribbon' => new RibbonResource($this->whenLoaded('ribbon')),
             'categories' => $this->when(!!$this->categories, function () {
                 return CategoryResource::collection($this->categories);
             }, []),

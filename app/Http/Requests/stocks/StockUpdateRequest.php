@@ -32,6 +32,7 @@ class StockUpdateRequest extends FormRequest
     {
 
         $ribbonId = $this->ribbon_id == 0 ? [] : ['exists:ribbons,id', 'numeric', 'gte:1'];
+        $animationId = $this->animation_id == 0 ? [] :  ['exists:image360is,id', 'numeric', 'gte:1'];
         if ($this->id == '*') return [
 
             'price' =>  ['numeric'],
@@ -48,7 +49,7 @@ class StockUpdateRequest extends FormRequest
             'sizes' => ['array'],
             'videos' => ['array'],
             'where_category_id' =>  ['exists:categories,id', 'numeric', 'gte:1'],
-
+            'animation_id' =>  $animationId,
         ];
 
 
@@ -68,6 +69,7 @@ class StockUpdateRequest extends FormRequest
             'categories.*' =>  ['exists:categories,id', 'numeric', 'gte:1'],
             'colors' => ['array'],
             'sizes' => ['array'],
+            'animation_id' =>  $animationId,
 
         ];
 
@@ -87,6 +89,7 @@ class StockUpdateRequest extends FormRequest
             'categories.*' =>  ['exists:categories,id', 'numeric', 'gte:1'],
             'colors' => ['array'],
             'sizes' => ['array'],
+            'animation_id' =>   $animationId,
 
         ];
     }

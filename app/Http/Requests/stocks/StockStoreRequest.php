@@ -50,6 +50,7 @@ class StockStoreRequest extends FormRequest
             'ribbon_id' =>  ['exists:ribbons,id', 'numeric', 'gte:1'],
             'categories' =>  ['array'],
             'categories.*' =>  ['exists:categories,id', 'numeric', 'gte:1'],
+            'animation_id' =>  ['exists:image360is,id', 'numeric', 'gte:1', 'nullable'],
         ];
     }
 
