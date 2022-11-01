@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\address;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,6 +18,7 @@ class OrderResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'shipping_cost_type' => address::find($this->address_id)?->calculateShippingCostType(),
             'address' => [
                 'id' => $this->address_id,
                 'address' => $this->address_address,

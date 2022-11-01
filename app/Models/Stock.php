@@ -214,7 +214,7 @@ class Stock extends Model
     }
 
 
-    public  function CalculateShippingCost($tipoEnvio)
+    public  function calculateShippingCost($tipoEnvio)
     {
 
         if ($tipoEnvio == ShippingCost::$RX) return $this->rx_cost;

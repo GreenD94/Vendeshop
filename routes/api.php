@@ -65,6 +65,7 @@ use App\Models\Order;
 use App\Models\PayuConfig;
 use App\Models\ProductDetail;
 use App\Models\ShippingCost;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Mail;
@@ -252,6 +253,15 @@ Route::group(['middleware' => 'EnsureTokenIsAuth'], function () {
     Route::delete('mobile/image360', [Image360Controller::class, 'destroy'])->name('api.mobile.image360.destroy');
 
 
+    Route::get('/test', function (Request $request) {
+
+        $authUser = User::find(Auth()->id());
+        $shippingCostType = $authUser?->addresses?->first(function ($address, $key) {
+            return $address->is_favorite;
+        })?->calculateShippingCostType() ?? ShippingCost::$RX;
+        dd($shippingCostType, $authUser->toArray(), $authUser?->addresses->toArray());
+    });
+
 
     Route::get('mobile/address', [addressController::class, 'index'])->name('api.mobile.address.index');
     Route::post('mobile/address', [addressController::class, 'store'])->name('api.mobile.address.store');
@@ -437,20 +447,6 @@ Route::post('/payu-payment-test', function (Request $request) {
 Route::post('/payu-payment', [PayuController::class, 'store'])->name('api.mobile.payu.store');
 
 
-Route::get('/test', function (Request $request) {
-
-    $data = preg_replace('/[0-9]+/', '', $request->formatted_address);
-    $data = collect(explode(",", $data));
-    $data = $data->map(function ($item, $key) {
-        return  trim($item);
-    });
-    $query = ShippingCost::findFromGoogleMaps($data);
-    return  response()->json([
-        //'code'		=>	200,
-        'message'   => "test",
-        'data'      => ShippingCostResource::collection($query->get())
-    ], 200);
-});
 
 
 

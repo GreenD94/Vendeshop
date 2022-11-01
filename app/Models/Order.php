@@ -86,40 +86,46 @@ class Order extends Model
         );
     }
 
-    public static function calculateTotal($stocks,  $tickets)
+    public static function calculateTotal($stocks,  $tickets, $address_id)
     {
         $stocks->transform(function ($value, $key) {
             $stock = $value["model"];
             $amount = (int) $value["amount"];
             $discount = (($stock->mock_price - $stock->price) / $stock->mock_price);
             $stock->price = $stock->price * $amount;
+            $stock->totalitem = $amount;
             return $stock;
         });
 
         $stocksTotal = $stocks->sum('price');
         $ticketsTotal = $tickets;
-        $shippingcost =  Order::shippingCostToArray($stocksTotal);
+        $shippingcost =  Order::shippingCostToArray($stocks, $address_id);
 
-        $total = $stocksTotal - $ticketsTotal + $shippingcost['shipping_cost'];
+        $total = $stocksTotal - $ticketsTotal + $shippingcost;
 
-        return ['total' => $total, 'shipping_cost' => $shippingcost['shipping_cost']];
+        return ['total' => $total, 'shipping_cost' => $shippingcost];
     }
 
 
-    public static function shippingCostToArray($stocksTotal): array
+    public static function shippingCostToArray($stocks, $address_id)
     {
-        $shippingCostModel = ShippingCost::where('is_active', true)->first();
-        if (!$shippingCostModel) return ['shipping_cost' => 0];
-        $shippingcost = 0;
-        $shippingcostPrice =      $shippingCostModel?->price ?? 0;
-        $shippingcostPercentage =      $shippingCostModel?->price_percentage ?? 0;
-        if ($shippingcostPrice > 0) $shippingcost = $shippingcostPrice;
-        if ($shippingcostPercentage > 0) $shippingcost = $stocksTotal * $shippingcostPercentage;
+        // $shippingCostModel = ShippingCost::where('is_active', true)->first();
+        // if (!$shippingCostModel) return ['shipping_cost' => 0];
+        // $shippingcost = 0;
+        // $shippingcostPrice =      $shippingCostModel?->price ?? 0;
+        // $shippingcostPercentage =      $shippingCostModel?->price_percentage ?? 0;
+        // if ($shippingcostPrice > 0) $shippingcost = $shippingcostPrice;
+        // if ($shippingcostPercentage > 0) $shippingcost = $stocksTotal * $shippingcostPercentage;
 
-        $array = [
-            'shipping_cost' =>  $shippingcost
-        ];
-        return $array;
+        // $array = [
+        //     'shipping_cost' =>  $shippingcost
+        // ];
+
+        $shippingCostType = address::find($address_id)?->calculateShippingCostType() ?? ShippingCost::$RX;
+
+        return  $stocks->sum(function ($stock) use ($shippingCostType) {
+            return ($stock->calculateShippingCost($shippingCostType) * $stock->totalitem);
+        });
     }
     public static function addressToArray($address_id, string $prefix = "address_"): array
     {
@@ -211,10 +217,10 @@ class Order extends Model
             $query->where('id', $id);
     }
 
-    public function addDetails(Collection $stocks, SupportCollection  $stockData)
+    public function addDetails(Collection $stocks, SupportCollection  $stockData, $isReadOnly = false)
     {
         $createdModel = $this;
-        $stocks->each(function ($stock, $key) use ($createdModel, $stockData) {
+        $stocks->each(function ($stock, $key) use ($createdModel, $stockData, $isReadOnly) {
             $firstStockData = $stockData->firstWhere('id', $stock->id);
 
             $quantity = $firstStockData["amount"] ?? 1;
@@ -223,25 +229,28 @@ class Order extends Model
             $size_id = $firstStockData["size_id"] ?? null;
             $size_size = ($size_id) ? Size::find($size_id)->size : null;
 
+            $data = [
+                'discount' => 0,
+                'price' => $stock->price,
+                'mock_price' => $stock->mock_price,
+                'credits' => $stock->credits,
+                'quantity' => $quantity,
+                'cover_image_id' => $stock?->cover_image_id,
+                'cover_image_url' => $stock?->cover_image?->url,
+                'description' => $stock->description,
+                'name' => $stock->description,
+                'color_id' => $color_id,
+                'color_hex' => $color_hex,
+                'size_id' => $size_id,
+                'size_size' => $size_size,
+                'stock_id' => $stock->id
+            ];
 
-            $createdModel->details()->create(
-                [
-                    'discount' => 0,
-                    'price' => $stock->price,
-                    'mock_price' => $stock->mock_price,
-                    'credits' => $stock->credits,
-                    'quantity' => $quantity,
-                    'cover_image_id' => $stock?->cover_image_id,
-                    'cover_image_url' => $stock?->cover_image?->url,
-                    'description' => $stock->description,
-                    'name' => $stock->description,
-                    'color_id' => $color_id,
-                    'color_hex' => $color_hex,
-                    'size_id' => $size_id,
-                    'size_size' => $size_size,
-                    'stock_id' => $stock->id
-                ]
-            );
+            if ($isReadOnly) {
+                $createdModel->details->push(new OrderDetail($data));
+            } else {
+                $createdModel->details()->create($data);
+            }
         });
     }
 

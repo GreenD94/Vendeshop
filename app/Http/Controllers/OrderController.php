@@ -81,7 +81,7 @@ class OrderController extends Controller
         $mappedStock = collect($mappedStock);
 
         $data = array_merge(
-            Order::calculateTotal($mappedStock, $tickets),
+            Order::calculateTotal($mappedStock, $tickets, $request->address_id),
             Order::addressToArray($request->address_id),
             Order::addressToArray($request->billing_address_id, 'billing_address_'),
             Order::userToArray($request->user_id),
@@ -92,9 +92,15 @@ class OrderController extends Controller
         if (Order::isTicketMaximumLimitExceeded($data["total"], $tickets)) return $this->errorResponse([], "Los Ticket deben ser menor al 95% de total", 422);
         if ($user->isFirstTimeBuyerTicketMaximumLimitExceeded($data["total"], $tickets)) return $this->errorResponse([], "Los Ticket deben ser menor al 95% de total", 422);
 
-        $ticketModel = $user->addTickets($tickets);
+        if ($request->read_only) {
+            $createdModel =  new  Order($data);
+            $createdModel->addDetails($stocks, collect($request->stocks), $request->read_only);
+            return $this->successResponse(new OrderResource($createdModel), "OK", 200, []);
+        }
+
         $createdModel = Order::create($data);
         $createdModel->addDetails($stocks, collect($request->stocks));
+        $ticketModel = $user->addTickets($tickets);
         $createdModel->addTickets($ticketModel);
         $createdModel->addStatusLog(OrderStatus::find(1));
         $sendNotificationResponse = $createdModel->sendNotification();
